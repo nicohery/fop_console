@@ -302,22 +302,31 @@ abstract class ImageGenerateAbstract extends Command
                 if (file_exists($existing_img) && filesize($existing_img)) {
                     foreach ($type as $imageType) {
                         if (!file_exists($dir . $imageObj->getExistingImgPath() . '-' . stripslashes($imageType['name']) . '.jpg')) {
-                            if (!ImageManager::resize($existing_img, $dir . $imageObj->getExistingImgPath() . '-' . stripslashes($imageType['name']) . '.jpg', (int) $imageType['width'], (int) $imageType['height'])) {
-                                $this->errors[] = sprintf(
-                                    'Original image is corrupt %s for product ID %s or bad permission on folder.',
-                                    $existing_img,
-                                    (int) $imageObj->id_product
-                                );
-                            }
-
-                            if ($generate_hight_dpi_images) {
-                                if (!ImageManager::resize($existing_img, $dir . $imageObj->getExistingImgPath() . '-' . stripslashes($imageType['name']) . '2x.jpg', (int) $imageType['width'] * 2, (int) $imageType['height'] * 2)) {
+                            try {
+                                if (!ImageManager::resize($existing_img, $dir . $imageObj->getExistingImgPath() . '-' . stripslashes($imageType['name']) . '.jpg', (int) $imageType['width'], (int) $imageType['height'])) {
                                     $this->errors[] = sprintf(
                                         'Original image is corrupt %s for product ID %s or bad permission on folder.',
                                         $existing_img,
                                         (int) $imageObj->id_product
                                     );
                                 }
+
+                                if ($generate_hight_dpi_images) {
+                                    if (!ImageManager::resize($existing_img, $dir . $imageObj->getExistingImgPath() . '-' . stripslashes($imageType['name']) . '2x.jpg', (int) $imageType['width'] * 2, (int) $imageType['height'] * 2)) {
+                                        $this->errors[] = sprintf(
+                                            'Original image is corrupt %s for product ID %s or bad permission on folder.',
+                                            $existing_img,
+                                            (int) $imageObj->id_product
+                                        );
+                                    }
+                                }
+                            } catch (\Exception $e) {
+                                $this->errors[] = sprintf(
+                                    'Unable to resize image %s for product ID %s. error: %s',
+                                    $existing_img,
+                                    (int) $imageObj->id_product,
+                                    $e->getMessage()
+                                );
                             }
                         }
                     }

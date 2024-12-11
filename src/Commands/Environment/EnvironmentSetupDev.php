@@ -171,8 +171,8 @@ class EnvironmentSetupDev extends Command
 
         //Clear all cache
         $this->io->text('<info>Clear all cache</info>');
-        $cacheClearChain = $this->getContainer()->get('prestashop.adapter.cache_clearer');
-        $cacheClearChain->clearAllCaches();
+        $cacheClearChain = $this->getContainer()->get('prestashop.core.cache.clearer.cache_clearer_chain');
+        $cacheClearChain->clear();
 
         if (!$res) {
             //If error ROLLBACK sql update
